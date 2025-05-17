@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Login Admin - Kribangs</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+<style>body { font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(to right, #f7a324, #fddc9b); margin: 0; }
+.login-box { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); width: 300px; }
+h2 { text-align: center; margin-bottom: 1rem; }input { width: 100%; padding: 0.75rem; margin-top: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 8px; }
+button { width: 100%; padding: 0.75rem; background: #f7a324; color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; }
+button:hover { background: #d9821b; }.error { color: red; text-align: center; margin-bottom: 0.5rem; }</style></head>
+<body><div class="login-box"><h2>Login Admin</h2><div id="error" class="error"></div>
+<input type="email" id="email" placeholder="Email admin" required />
+<input type="password" id="password" placeholder="Password" required />
+<button onclick="login()">Login</button></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDg_kAV0ebhCX35LVw8Hga_iZhpm0YIDbM",
+  authDomain: "laporanharian-kribangs.firebaseapp.com",
+  projectId: "laporanharian-kribangs",
+  storageBucket: "laporanharian-kribangs.firebasestorage.app",
+  messagingSenderId: "268157689694",
+  appId: "1:268157689694:web:0623020c6582c1a25d79cf",
+  measurementId: "G-KP9L2BTNZ0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+window.login = function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => location.href = "dashboard.html")
+    .catch((error) => {
+      document.getElementById("error").innerText = "Login gagal: " + error.message;
+    });
+};
+</script></body></html>
