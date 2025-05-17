@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+# Buat file dashboard_firebase.html dengan integrasi ke Firestore
+dashboard_firebase = """<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -50,5 +51,50 @@
     <div class="card"><h3>Selesai</h3><p id="selesai">0</p></div>
     <div class="card"><h3>Belum Selesai</h3><p id="belum">0</p></div>
   </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDg_kAV0ebhCX35LVw8Hga_iZhpm0YIDbM",
+      authDomain: "laporanharian-kribangs.firebaseapp.com",
+      projectId: "laporanharian-kribangs",
+      storageBucket: "laporanharian-kribangs.appspot.com",
+      messagingSenderId: "268157689694",
+      appId: "1:268157689694:web:0623020c6582c1a25d79cf",
+      measurementId: "G-KP9L2BTNZ0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadSummary() {
+      const querySnapshot = await getDocs(collection(db, "aktivitas"));
+      let total = 0;
+      let selesai = 0;
+      let belum = 0;
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        total++;
+        if (data.status === "Selesai") selesai++;
+        else belum++;
+      });
+
+      document.getElementById("total").innerText = total;
+      document.getElementById("selesai").innerText = selesai;
+      document.getElementById("belum").innerText = belum;
+    }
+
+    loadSummary();
+  </script>
 </body>
 </html>
+"""
+
+dashboard_firebase_path = "/mnt/data/dashboard_firebase.html"
+with open(dashboard_firebase_path, "w", encoding="utf-8") as f:
+    f.write(dashboard_firebase)
+
+dashboard_firebase_path
