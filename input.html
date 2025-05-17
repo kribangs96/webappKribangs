@@ -1,64 +1,105 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Input Aktivitas Harian - Kribangs</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Pelaporan Divisi - Firebase</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background-color: #fffbe6; }
-    label { display: block; margin-top: 15px; font-weight: bold; }
-    input, textarea, select {
-      width: 100%; padding: 10px; margin-top: 5px;
-      border: 1px solid #ccc; border-radius: 5px; font-size: 14px;
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #f7a324, #fddc9b);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      max-width: 700px;
+      width: 100%;
+    }
+    h2 {
+      text-align: center;
+      color: #f7a324;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: 500;
+      display: block;
+      margin-top: 15px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    input[type="file"] {
+      border: none;
     }
     button {
-      background-color: #f7a324; color: white; padding: 10px 20px;
-      border: none; border-radius: 5px; cursor: pointer;
-      margin-top: 20px; font-size: 16px;
+      background-color: #f7a324;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: pointer;
     }
-    button:hover { background-color: #d9821b; }
-    h2 { color: #f7a324; }
+    button:hover {
+      background-color: #d9821b;
+    }
+    .activity {
+      background-color: #fdf5e6;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
-  <h2>Input Aktivitas Harian + Upload Gambar</h2>
-  <form id="aktivitasForm">
-    <label for="tanggal">Tanggal</label>
-    <input type="date" id="tanggal" required />
+  <div class="container">
+    <h2>Pelaporan Harian Divisi</h2>
+    <form id="form">
+      <label for="tanggal">Tanggal</label>
+      <input type="date" id="tanggal" required>
 
-    <label for="divisi">Divisi</label>
-    <select id="divisi" required>
-      <option value="">-- Pilih Divisi --</option>
-      <option>Operasional Kribangs</option>
-      <option>Operasional Cemilan</option>
-      <option>Finance</option>
-      <option>HRD</option>
-      <option>Kanvas/Kampas</option>
-    </select>
+      <label for="divisi">Divisi</label>
+      <select id="divisi" required>
+        <option value="">-- Pilih Divisi --</option>
+        <option value="Operasional Kribangs">Operasional Kribangs</option>
+        <option value="Operasional Cemilan">Operasional Cemilan</option>
+        <option value="Finance">Finance</option>
+        <option value="HRD">HRD</option>
+        <option value="Kanvas/Kampas">Kanvas/Kampas</option>
+      </select>
 
-    <label for="nama">Nama PIC</label>
-    <input type="text" id="nama" required />
+      <label for="nama">Nama PIC</label>
+      <input type="text" id="nama" placeholder="Nama Penanggung Jawab" required>
 
-    <label for="aktivitas">Aktivitas</label>
-    <textarea id="aktivitas" required></textarea>
+      <label for="goal">Goal Harian</label>
+      <input type="text" id="goal" placeholder="Contoh: Menyelesaikan rekap laporan...">
 
-    <label for="status">Status</label>
-    <select id="status" required>
-      <option value="Selesai">Selesai</option>
-      <option value="Belum Selesai">Belum Selesai</option>
-    </select>
+      <label for="perintah">Perintah Kerja</label>
+      <textarea id="perintah" rows="2"></textarea>
 
-    <label for="kendala">Kendala</label>
-    <textarea id="kendala"></textarea>
+      <label>Aktivitas Harian & Output</label>
+      <div id="activity-list"></div>
+      <button type="button" onclick="addActivity()">➕ Tambah Aktivitas</button>
 
-    <label for="solusi">Solusi</label>
-    <textarea id="solusi"></textarea>
-
-    <label for="output">Upload Gambar (opsional)</label>
-    <input type="file" id="output" accept="image/*" />
-
-    <button type="submit">Kirim</button>
-  </form>
+      <button type="submit">Kirim Laporan</button>
+    </form>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
@@ -79,33 +120,71 @@
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    document.getElementById("aktivitasForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const fileInput = document.getElementById("output");
-      let fileUrl = "";
+    let activityCount = 0;
+    function addActivity() {
+      activityCount++;
+      const container = document.getElementById("activity-list");
+      const div = document.createElement("div");
+      div.classList.add("activity");
+      div.innerHTML = `
+        <label>Aktivitas ${activityCount}</label>
+        <input type="text" name="aktivitas" required>
+        <label>Upload Output</label>
+        <input type="file" name="output" accept="image/*">
+        <label>Status</label>
+        <select name="status">
+          <option value="Selesai">Selesai</option>
+          <option value="Belum Selesai">Belum Selesai</option>
+        </select>
+        <label>Kendala</label>
+        <textarea name="kendala"></textarea>
+        <label>Solusi</label>
+        <textarea name="solusi"></textarea>
+        <label>Tindakan Lanjut</label>
+        <textarea name="lanjut"></textarea>
+      `;
+      container.appendChild(div);
+    }
+    window.onload = () => addActivity();
 
-      if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        const storageRef = ref(storage, 'uploads/' + Date.now() + '_' + file.name);
-        const snapshot = await uploadBytes(storageRef, file);
-        fileUrl = await getDownloadURL(snapshot.ref);
+    document.getElementById("form").onsubmit = async function(e) {
+      e.preventDefault();
+      const tanggal = document.getElementById("tanggal").value;
+      const divisi = document.getElementById("divisi").value;
+      const nama = document.getElementById("nama").value;
+      const goal = document.getElementById("goal").value;
+      const perintah = document.getElementById("perintah").value;
+
+      const activities = document.querySelectorAll(".activity");
+      for (const act of activities) {
+        const aktivitas = act.querySelector('input[name="aktivitas"]').value;
+        const status = act.querySelector('select[name="status"]').value;
+        const kendala = act.querySelector('textarea[name="kendala"]').value;
+        const solusi = act.querySelector('textarea[name="solusi"]').value;
+        const lanjut = act.querySelector('textarea[name="lanjut"]').value;
+        const fileInput = act.querySelector('input[name="output"]');
+        let fileUrl = "";
+
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const storageRef = ref(storage, 'uploads/' + Date.now() + '_' + file.name);
+          const snapshot = await uploadBytes(storageRef, file);
+          fileUrl = await getDownloadURL(snapshot.ref);
+        }
+
+        await addDoc(collection(db, "aktivitas"), {
+          tanggal, divisi, nama, goal, perintah,
+          aktivitas, status, kendala, solusi, lanjut,
+          output: fileUrl
+        });
       }
 
-      const data = {
-        tanggal: document.getElementById("tanggal").value,
-        divisi: document.getElementById("divisi").value,
-        nama: document.getElementById("nama").value,
-        aktivitas: document.getElementById("aktivitas").value,
-        status: document.getElementById("status").value,
-        kendala: document.getElementById("kendala").value,
-        solusi: document.getElementById("solusi").value,
-        output: fileUrl
-      };
-
-      await addDoc(collection(db, "aktivitas"), data);
-      alert("Laporan berhasil dikirim!");
+      alert("Semua aktivitas berhasil dikirim!");
       e.target.reset();
-    });
+      document.getElementById("activity-list").innerHTML = "";
+      activityCount = 0;
+      addActivity();
+    };
   </script>
 </body>
 </html>
