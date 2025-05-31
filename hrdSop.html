@@ -6,68 +6,25 @@
   <title>Divisi HRD - SOP Kribangs</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      background: #fff8f0;
-      color: #333;
-    }
-    header {
-      background-color: #f7a324;
-      padding: 20px;
-      color: white;
-      text-align: center;
-    }
-    main {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 0 20px;
-    }
-    section {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    h2 {
-      color: #f7a324;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background-color: #f7a324;
-      color: white;
-    }
-    .aksi button {
-      margin-right: 5px;
-      background: #f7a324;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .aksi button:hover {
-      background: #d9821b;
-    }
-    .kembali {
-      display: inline-block;
-      margin-top: 20px;
-      text-decoration: none;
-      background: #ccc;
-      padding: 8px 12px;
-      border-radius: 8px;
-      color: #333;
-    }
+    body { font-family: 'Poppins', sans-serif; margin: 0; background: #fff8f0; color: #333; }
+    header { background-color: #f7a324; padding: 20px; color: white; text-align: center; }
+    main { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+    section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    h2 { color: #f7a324; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background-color: #f7a324; color: white; }
+    .aksi button { margin-right: 5px; background: #f7a324; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+    .aksi button:hover { background: #d9821b; }
+    .kembali { display: inline-block; margin-top: 20px; text-decoration: none; background: #ccc; padding: 8px 12px; border-radius: 8px; color: #333; }
+    .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
+    .modal-content { background-color: #fff; margin: 10% auto; padding: 20px; width: 80%; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+    .close { float: right; font-size: 24px; cursor: pointer; }
+    .edit-area { margin-top: 10px; display: none; }
+    .edit-area textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    .edit-area button { margin-top: 10px; background: #f7a324; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; }
+    .password-area { margin-top: 10px; }
+    #new-sop-form { margin-top: 30px; background: #fff5e0; padding: 20px; border-radius: 10px; display: none; }
   </style>
 </head>
 <body>
@@ -88,21 +45,102 @@
       </ul>
 
       <h2>List SOP HRD</h2>
-      <table>
+      <table id="sop-table">
         <thead>
           <tr><th>No</th><th>Judul SOP</th><th>Status</th><th>Aksi</th></tr>
         </thead>
-        <tbody>
-          <tr><td>1</td><td>SOP Kasbon</td><td>Final</td><td class="aksi"><button>Lihat</button></td></tr>
-          <tr><td>2</td><td>SOP Pengajuan WFH</td><td>Draft</td><td class="aksi"><button>Lihat</button></td></tr>
-          <tr><td>3</td><td>SOP Izin Karyawan</td><td>Final</td><td class="aksi"><button>Lihat</button></td></tr>
-          <tr><td>4</td><td>SOP Lambat Datang</td><td>Final</td><td class="aksi"><button>Lihat</button></td></tr>
-          <tr><td>5</td><td>SOP Punishment & Reward</td><td>Revisi</td><td class="aksi"><button>Lihat</button></td></tr>
+        <tbody id="sop-body">
+          <tr><td>1</td><td>SOP Kasbon</td><td><span id="status-kasbon">Final</span></td><td class="aksi"><button onclick="openModal('kasbon')">Lihat</button></td></tr>
         </tbody>
       </table>
+
+      <button onclick="document.getElementById('new-sop-form').style.display='block'">➕ Tambah SOP</button>
+      <form id="new-sop-form" onsubmit="addSOP(event)">
+        <h3>Tambah SOP Baru</h3>
+        <label>Judul SOP: <input type="text" id="new-title" required></label><br>
+        <label>Status: <select id="new-status"><option>Final</option><option>Draft</option><option>Revisi</option></select></label><br>
+        <label>Isi SOP: <textarea id="new-content" required></textarea></label><br>
+        <button type="submit">Tambah</button>
+      </form>
 
       <a href="index.html" class="kembali">⬅ Kembali ke Menu Utama</a>
     </section>
   </main>
+
+  <div id="kasbon" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('kasbon')">&times;</span>
+      <h3>SOP Kasbon</h3>
+      <p id="content-kasbon">Prosedur pengajuan, verifikasi, dan pencatatan kasbon oleh karyawan melalui HRD.</p>
+      <div class="password-area">
+        <input type="password" id="pass-kasbon" placeholder="Password HRD">
+        <button onclick="verifyPassword('kasbon')">Verifikasi</button>
+      </div>
+      <div class="edit-area" id="edit-kasbon">
+        <textarea id="edit-text-kasbon">Prosedur pengajuan, verifikasi, dan pencatatan kasbon oleh karyawan melalui HRD.</textarea>
+        <button onclick="saveEdit('kasbon')">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = 'block';
+    }
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+    function verifyPassword(id) {
+      const pass = document.getElementById('pass-' + id).value;
+      if (pass === 'hrd123') {
+        document.getElementById('edit-' + id).style.display = 'block';
+        alert('Edit mode diaktifkan.');
+      } else {
+        alert('Password salah. Akses ditolak.');
+      }
+    }
+    function saveEdit(id) {
+      const textarea = document.getElementById('edit-text-' + id);
+      const display = document.getElementById('content-' + id);
+      display.innerText = textarea.value;
+      alert('SOP berhasil diperbarui. (Simulasi lokal)');
+    }
+    function addSOP(event) {
+      event.preventDefault();
+      const title = document.getElementById('new-title').value;
+      const status = document.getElementById('new-status').value;
+      const content = document.getElementById('new-content').value;
+      const tbody = document.getElementById('sop-body');
+      const index = tbody.rows.length + 1;
+      const id = 'sop' + index;
+
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${index}</td><td>${title}</td><td><span>${status}</span></td><td class="aksi"><button onclick="openModal('${id}')">Lihat</button></td>`;
+      tbody.appendChild(row);
+
+      const modal = document.createElement('div');
+      modal.id = id;
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <span class="close" onclick="closeModal('${id}')">&times;</span>
+          <h3>${title}</h3>
+          <p id="content-${id}">${content}</p>
+          <div class="password-area">
+            <input type="password" id="pass-${id}" placeholder="Password HRD">
+            <button onclick="verifyPassword('${id}')">Verifikasi</button>
+          </div>
+          <div class="edit-area" id="edit-${id}">
+            <textarea id="edit-text-${id}">${content}</textarea>
+            <button onclick="saveEdit('${id}')">Simpan</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      document.getElementById('new-sop-form').reset();
+      document.getElementById('new-sop-form').style.display = 'none';
+    }
+  </script>
 </body>
 </html>
