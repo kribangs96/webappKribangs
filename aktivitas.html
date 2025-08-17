@@ -25,6 +25,7 @@
         <th>Output</th>
         <th>Kendala</th>
         <th>Solusi</th>
+        <th>Tindakan Lanjut</th>
       </tr>
     </thead>
     <tbody id="table-body">
@@ -65,6 +66,7 @@
           <td><a href="${data.output || "#"}" target="_blank">Lihat</a></td>
           <td>${data.kendala || ""}</td>
           <td>${data.solusi || ""}</td>
+          <td>${data.lanjut || ""}</td>
         `;
         tbody.appendChild(row);
       });
